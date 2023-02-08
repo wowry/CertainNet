@@ -29,7 +29,7 @@ def main(opt):
   opt.device = torch.device('cuda' if opt.gpus[0] >= 0 else 'cpu')
   
   print('Creating model...')
-  model = create_model(opt.arch, opt.heads, opt.head_conv)
+  model = create_model(opt.arch, opt.heads, opt.head_conv, opt)
   optimizer = torch.optim.Adam(model.parameters(), opt.lr)
   start_epoch = 0
   if opt.load_model != '':
@@ -65,7 +65,22 @@ def main(opt):
 
   print('Starting training...')
   best = 1e10
+
+  # epochs of increasing momentum
+  m_epochs = [5, 20, 60]
+
   for epoch in range(start_epoch + 1, opt.num_epochs + 1):
+    if 'certainnet' in opt.arch and opt.ablation >= 4:
+      if epoch in m_epochs:
+        if epoch == m_epochs[0]:
+          gamma = 0.99
+        elif epoch == m_epochs[1]:
+          gamma = 0.999
+        elif epoch == m_epochs[2]:
+          gamma = 0.9999      
+        opt.gamma = gamma
+        print('Increase momentum to', opt.gamma)
+
     mark = epoch if opt.save_all else 'last'
     log_dict_train, _ = trainer.train(epoch, train_loader)
     logger.write('epoch: {} |'.format(epoch))
