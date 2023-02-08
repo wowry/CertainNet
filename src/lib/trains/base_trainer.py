@@ -72,7 +72,7 @@ class BaseTrainer(object):
       num_freeze_epochs = 10
       freeze_epoch = opt.num_epochs - num_freeze_epochs + 1
       if epoch == freeze_epoch:
-        print(f'freeze params for the last {num_freeze_epochs} epochs')
+        print(f'Freeze params for the last {num_freeze_epochs} epochs')
       if epoch >= freeze_epoch:
         for param in self.model.parameters():
           param.requires_grad_(False)
@@ -83,6 +83,11 @@ class BaseTrainer(object):
       if iter_id >= num_iters:
         break
       data_time.update(time.time() - end)
+
+      if phase == 'train':
+        model_with_loss.train()
+      else:
+        model_with_loss.eval()
 
       if 'certainnet' in opt.arch and opt.ablation >= 5:
         if opt.length_scale > 5e-2:
@@ -102,7 +107,6 @@ class BaseTrainer(object):
           with torch.no_grad():
             model_with_loss.eval()
             self.model.update_embeddings(batch['input'], batch['hm'])
-          model_with_loss.train()
       batch_time.update(time.time() - end)
       end = time.time()
 
