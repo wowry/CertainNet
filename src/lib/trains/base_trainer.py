@@ -20,7 +20,7 @@ class ModelWithLoss(torch.nn.Module):
   def forward(self, batch):
     if 'certainnet' in self.arch:
       outputs, y_mapped = self.model(batch['input'])
-      reg_loss = self.model.calc_L_reg(batch['hm'], y_mapped)
+      reg_loss = self.model.calc_Lreg(batch['hm'], y_mapped)
       loss, loss_stats = self.loss(outputs, batch, reg_loss, self.reg_weight)
     else:
       outputs = self.model(batch['input'])
