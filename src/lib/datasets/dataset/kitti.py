@@ -12,7 +12,13 @@ import os
 import math
 
 import torch.utils.data as data
+import tools.det_eval.kitti_common as kitti
+from tools.det_eval.eval import get_official_eval_result
 
+def _read_imageset_file(path):
+  with open(path, 'r') as f:
+      lines = f.readlines()
+  return [int(line) for line in lines]
 
 class KITTI(data.Dataset):
   num_classes = 3
@@ -65,25 +71,30 @@ class KITTI(data.Dataset):
   def convert_eval_format(self, all_bboxes):
     pass
 
-  def save_results(self, results, save_dir):
-    results_dir = os.path.join(save_dir, 'results')
+  def save_results(self, results, results_dir):
     if not os.path.exists(results_dir):
-      os.mkdir(results_dir)
+      os.makedirs(results_dir)
     for img_id in results.keys():
       out_path = os.path.join(results_dir, '{:06d}.txt'.format(img_id))
       f = open(out_path, 'w')
       for cls_ind in results[img_id]:
         for j in range(len(results[img_id][cls_ind])):
           class_name = self.class_name[cls_ind]
-          f.write('{} 0.0 0'.format(class_name))
-          for i in range(len(results[img_id][cls_ind][j])):
+          f.write('{} 0.0 0 -10'.format(class_name))
+          for i in range(len(results[img_id][cls_ind][j])-1):
             f.write(' {:.2f}'.format(results[img_id][cls_ind][j][i]))
+          f.write(' 0.0 0.0 0.0 0.0 0.0 0.0 0.0 {:.2f}'.format(results[img_id][cls_ind][j][i + 1]))
           f.write('\n')
       f.close()
 
   def run_eval(self, results, save_dir):
-    self.save_results(results, save_dir)
-    os.system('./tools/kitti_eval/evaluate_object_3d_offline ' + \
-              '../data/kitti/training/label_val ' + \
-              '{}/results/'.format(save_dir))
+    results_dir = os.path.join(save_dir, 'results')
+    self.save_results(results, results_dir)
     
+    det_path = results_dir
+    dt_annos = kitti.get_label_annos(det_path)
+    gt_path = os.path.join(self.opt.data_dir, 'kitti/training/label_2')
+    gt_split_file = os.path.join(gt_path, f'../../ImageSets_{self.opt.kitti_split}/{self.split}.txt')
+    val_image_ids = _read_imageset_file(gt_split_file)
+    gt_annos = kitti.get_label_annos(gt_path, val_image_ids)
+    print(get_official_eval_result(gt_annos, dt_annos, ['Car', 'Pedestrian', 'Cyclist'], self.opt))
