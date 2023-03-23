@@ -2,14 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import torch.utils.data as data
 import pycocotools.coco as coco
 import numpy as np
-import torch
-import json
-import cv2
 import os
-import math
 
 import torch.utils.data as data
 import tools.det_eval.kitti_common as kitti
@@ -88,7 +83,7 @@ class KITTI(data.Dataset):
       f.close()
 
   def run_eval(self, results, save_dir):
-    results_dir = os.path.join(save_dir, 'results')
+    results_dir = os.path.join(save_dir, f'results/{self.opt.dataset}')
     self.save_results(results, results_dir)
     
     det_path = results_dir
@@ -97,4 +92,4 @@ class KITTI(data.Dataset):
     gt_split_file = os.path.join(gt_path, f'../../ImageSets_{self.opt.kitti_split}/{self.split}.txt')
     val_image_ids = _read_imageset_file(gt_split_file)
     gt_annos = kitti.get_label_annos(gt_path, val_image_ids)
-    print(get_official_eval_result(gt_annos, dt_annos, ['Car', 'Pedestrian', 'Cyclist'], self.opt))
+    print(get_official_eval_result(gt_annos, dt_annos, ['Car', 'Pedestrian', 'Cyclist'], self.opt.dataset))
