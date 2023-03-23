@@ -30,7 +30,7 @@ class BaseDetector(object):
     self.std = np.array(opt.std, dtype=np.float32).reshape(1, 1, 3)
     self.max_per_image = 100
     self.num_classes = opt.num_classes
-    self.scales = opt.test_scales
+    self.scales = [1]#opt.test_scales
     self.opt = opt
     self.pause = True
 
