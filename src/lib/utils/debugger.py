@@ -62,6 +62,8 @@ class Debugger(object):
       self.focal_length = 721.5377
       self.W = 1242
       self.H = 375
+    elif dataset == 'bdd100k':
+      self.names = bdd_class_name
     num_classes = len(self.names)
     self.down_ratio=down_ratio
     # for bird view
@@ -431,6 +433,8 @@ class Debugger(object):
 kitti_class_name = [
   'p', 'v', 'b'
 ]
+
+bdd_class_name = ['pedestrian', 'car', 'rider']
 
 gta_class_name = [
   'p', 'v'

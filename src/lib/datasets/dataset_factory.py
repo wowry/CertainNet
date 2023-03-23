@@ -10,6 +10,7 @@ from .sample.multi_pose import MultiPoseDataset
 from .dataset.coco import COCO
 from .dataset.pascal import PascalVOC
 from .dataset.kitti import KITTI
+from .dataset.bdd100k import BDD100K
 from .dataset.coco_hp import COCOHP
 
 
@@ -17,6 +18,7 @@ dataset_factory = {
   'coco': COCO,
   'pascal': PascalVOC,
   'kitti': KITTI,
+  'bdd100k': BDD100K,
   'coco_hp': COCOHP
 }
 

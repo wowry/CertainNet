@@ -39,9 +39,14 @@ def get_thresholds(scores: np.ndarray, num_gt, num_sample_pts=41):
 
 def clean_data(gt_anno, dt_anno, dataset, current_class, class_to_name, difficulty):
     CLASS_NAMES = list(class_to_name.values())
-    MIN_HEIGHT = [40, 25, 25]
-    MAX_OCCLUSION = [0, 1, 2]
-    MAX_TRUNCATION = [0.15, 0.3, 0.5]
+    if dataset == 'kitti':
+        MIN_HEIGHT = [40, 25, 25]
+        MAX_OCCLUSION = [0, 1, 2]
+        MAX_TRUNCATION = [0.15, 0.3, 0.5]
+    else:
+        MIN_HEIGHT = [0, 0, 0]
+        MAX_OCCLUSION = [0, 0, 0]
+        MAX_TRUNCATION = [0, 0, 0]
     dc_bboxes, ignored_gt, ignored_dt = [], [], []
     current_cls_name = CLASS_NAMES[current_class].lower()
     num_gt = len(gt_anno["name"])
@@ -722,7 +727,7 @@ def print_str(value, *arg, sstream=None):
 def get_official_eval_result(gt_annos,
                              dt_annos,
                              current_classes,
-                             opt,
+                             dataset,
                              difficultys=[0, 1, 2],
                              z_axis=1,
                              z_center=1.0):
@@ -730,7 +735,6 @@ def get_official_eval_result(gt_annos,
         gt_annos and dt_annos must contains following keys:
         [bbox, location, dimensions, rotation_y, score]
     """
-    dataset = opt.dataset
     if dataset == 'kitti':
         class_to_name = {
             0: 'car',
@@ -742,7 +746,7 @@ def get_official_eval_result(gt_annos,
             6: 'tram',
             7: 'misc',
         }
-    elif dataset == 'bdd':
+    elif dataset == 'bdd100k':
         class_to_name = {
             0: 'car',
             1: 'pedestrian',
@@ -755,6 +759,7 @@ def get_official_eval_result(gt_annos,
             8: 'trafficlight',
             9: 'trafficsign',
         }
+        difficultys = [0]
     else:
         raise NotImplementedError("Only KITTI or BDD100K are supported")
     

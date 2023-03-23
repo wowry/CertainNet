@@ -13,7 +13,7 @@ class opts(object):
     self.parser.add_argument('task', default='ctdet',
                              help='ctdet | ddd | multi_pose | exdet')
     self.parser.add_argument('--dataset', default='coco',
-                             help='coco | kitti | coco_hp | pascal | bdd')
+                             help='coco | kitti | coco_hp | pascal | bdd100k')
     self.parser.add_argument('--exp_id', default='default')
     self.parser.add_argument('--test', action='store_true')
     self.parser.add_argument('--debug', type=int, default=0,
@@ -108,8 +108,10 @@ class opts(object):
     # test
     self.parser.add_argument('--flip_test', action='store_true',
                              help='flip data augmentation.')
+    """ not supported yet
     self.parser.add_argument('--test_scales', type=str, default='1',
                              help='multi scale test augmentation.')
+    """
     self.parser.add_argument('--nms', action='store_true',
                              help='run nms in testing.')
     self.parser.add_argument('--K', type=int, default=100,
@@ -255,7 +257,7 @@ class opts(object):
     opt.gpus = [int(gpu) for gpu in opt.gpus.split(',')]
     opt.gpus = [i for i in range(len(opt.gpus))] if opt.gpus[0] >=0 else [-1]
     opt.lr_step = [int(i) for i in opt.lr_step.split(',')]
-    opt.test_scales = [float(i) for i in opt.test_scales.split(',')]
+    #opt.test_scales = [float(i) for i in opt.test_scales.split(',')]
 
     opt.fix_res = not opt.keep_res
     print('Fix size testing.' if opt.fix_res else 'Keep resolution testing.')
@@ -290,7 +292,7 @@ class opts(object):
     print('training chunk_sizes:', opt.chunk_sizes)
 
     opt.root_dir = os.path.join(os.path.dirname(__file__), '..', '..')
-    opt.data_dir = os.path.join(opt.root_dir, 'data')
+    opt.data_dir = os.path.join(opt.root_dir, '../exp/CenterNet/data')
     opt.exp_dir = os.path.join(opt.root_dir, 'exp', opt.task)
     opt.save_dir = os.path.join(opt.exp_dir, opt.exp_id)
     opt.debug_dir = os.path.join(opt.save_dir, 'debug')
